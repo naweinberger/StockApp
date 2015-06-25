@@ -17,7 +17,14 @@
         android:id="@+id/generate_event"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Generate event"
+        android:text="Refresh"
         android:layout_below="@id/ticker_recyclerview"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#9f9f9f"
+        android:text="@string/delay_warning"
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

@@ -1,5 +1,6 @@
 package com.palindromicstudios.stockapp;
 
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,14 +14,19 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
 
     TextView label;
+    Button refresh;
     private static StockPriceFetcher stockPriceFetcher;
-    private static StockQuote[] quotes;
+    private static ArrayList<StockQuote> quotes;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -39,15 +45,9 @@ public class MainActivityFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        if (quotes == null) {
-            quotes = new StockQuote[]{};
-        }
 
-        mAdapter = new TickerAdapter(quotes);
-        mRecyclerView.setAdapter(mAdapter);
-
-        Button generateButton = (Button) view.findViewById(R.id.generate_event);
-        generateButton.setOnClickListener(new View.OnClickListener() {
+        refresh = (Button) view.findViewById(R.id.generate_event);
+        refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (stockPriceFetcher != null) {
@@ -59,7 +59,7 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
-
+        updateQuotes();
 
         return view;
     }
@@ -77,14 +77,54 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Subscribe public void onStockUpdateEvent(StockUpdateEvent event) {
-        quotes = event.getQuotes().toArray(quotes);
 
-        if (mAdapter != null) {
-            mAdapter = null;
+        if (quotes == null) {
+            quotes = new ArrayList<StockQuote>();
         }
 
-        mAdapter = new TickerAdapter(quotes);
-        mRecyclerView.setAdapter(mAdapter);
+        quotes.clear();
+        quotes.addAll(event.getQuotes());
+
+        if (mAdapter == null) {
+            mAdapter = new TickerAdapter(quotes);
+            mRecyclerView.setAdapter(mAdapter);
+        }
+
+        mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
+        //mRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Subscribe public void onStockRefreshingEvent(StockRefreshingEvent event) {
+        if (event.getCompletionStatus() == true) {
+            refresh.setText("Update quotes");
+            refresh.setClickable(true);
+        }
+        else {
+            refresh.setText("Refreshing...");
+            refresh.setClickable(false);
+        }
+
+    }
+
+    public void updateQuotes() {
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        try {
+                            StockPriceFetcher task = new StockPriceFetcher();
+                            task.execute();
+                        } catch (Exception e) {
+                            Log.e("StockApp", e.toString());
+                        }
+                    }
+                });
+            }
+        };
+        timer.schedule(doAsynchronousTask, 0, 30000); // in milliseconds
     }
 }
 

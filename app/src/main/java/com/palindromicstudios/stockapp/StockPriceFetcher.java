@@ -10,10 +10,12 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -60,10 +62,21 @@ public class StockPriceFetcher extends AsyncTask<Void, Void, String> {
         // Clean data
         try {
             JSONObject root = new JSONObject(result);
-            String symbol = root.getJSONObject("query").getJSONObject("results").getJSONArray("quote").getJSONObject(0).getString("Symbol");
-            String price = root.getJSONObject("query").getJSONObject("results").getJSONArray("quote").getJSONObject(0).getString("LastTradePriceOnly");
-            Log.i("Price", price);
-            MyBus.getInstance().post(new StockUpdateEvent(symbol, price));
+
+            JSONArray items = root.getJSONObject("query").getJSONObject("results").getJSONArray("quote");
+
+            String symbol = "";
+            String price = "";
+
+            ArrayList<StockQuote> quotes = new ArrayList<StockQuote>();
+
+            for (int i = 0; i < items.length(); i++) {
+                symbol = items.getJSONObject(i).getString("Symbol");
+                price = items.getJSONObject(i).getString("LastTradePriceOnly");
+                quotes.add(new StockQuote(symbol, price));
+            }
+
+            MyBus.getInstance().post(new StockUpdateEvent(quotes));
         } catch (Exception e) {
             Log.e("Error", e.toString());
         }

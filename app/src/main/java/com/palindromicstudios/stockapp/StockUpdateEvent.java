@@ -1,35 +1,20 @@
 package com.palindromicstudios.stockapp;
 
+import java.util.ArrayList;
+
 /**
  * Created by Natan on 6/24/2015.
  */
 public class StockUpdateEvent {
 
-    private String symbol;
-    private double price;
+    private ArrayList<StockQuote> quotes;
 
-    public StockUpdateEvent(String symbol, String price) {
-        this(symbol, Double.valueOf(price));
+    public StockUpdateEvent(ArrayList<StockQuote> quotes) {
+        this.quotes = quotes;
     }
 
-    public StockUpdateEvent(String symbol, double price) {
-        this.symbol = symbol;
-        this.price = price;
+    public ArrayList<StockQuote> getQuotes() {
+        return this.quotes;
     }
 
-    public String getSymbol() {
-        return this.symbol;
-    }
-
-    public double getPrice() {
-        return this.price;
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuilder(this.symbol)
-                .append(": ")
-                .append(String.valueOf(this.price))
-                .toString();
-    }
 }

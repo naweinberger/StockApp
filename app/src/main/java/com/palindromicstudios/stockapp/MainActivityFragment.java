@@ -2,6 +2,9 @@ package com.palindromicstudios.stockapp;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +20,11 @@ public class MainActivityFragment extends Fragment {
 
     TextView label;
     private static StockPriceFetcher stockPriceFetcher;
+    private static StockQuote[] quotes;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     public MainActivityFragment() {
     }
@@ -26,9 +34,19 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        label = (TextView) view.findViewById(R.id.label);
-        Button generateButton = (Button) view.findViewById(R.id.generate_event);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.ticker_recyclerview);
 
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        if (quotes == null) {
+            quotes = new StockQuote[]{};
+        }
+
+        mAdapter = new TickerAdapter(quotes);
+        mRecyclerView.setAdapter(mAdapter);
+
+        Button generateButton = (Button) view.findViewById(R.id.generate_event);
         generateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,7 +77,14 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Subscribe public void onStockUpdateEvent(StockUpdateEvent event) {
-        label.setText(event.toString());
+        quotes = event.getQuotes().toArray(quotes);
+
+        if (mAdapter != null) {
+            mAdapter = null;
+        }
+
+        mAdapter = new TickerAdapter(quotes);
+        mRecyclerView.setAdapter(mAdapter);
     }
 }
 

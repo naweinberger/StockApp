@@ -23,6 +23,19 @@ import java.util.Random;
  */
 public class StockPriceFetcher extends AsyncTask<Void, Void, String> {
 
+    final private String SYMBOL = "Symbol",
+            PRICE = "LastTradePriceOnly",
+            CHANGE = "Change",
+            PERCENT_CHANGE = "PercentChange",
+            OPEN = "Open",
+            DAY_LOW = "DaysLow",
+            DAY_HIGH = "DaysHigh",
+            YEAR_LOW = "YearLow",
+            YEAR_HIGH = "YearHigh",
+            EPS = "EarningsShare",
+            PE_RATIO = "PERatio",
+            DIVIDEND = "DividendShare";
+
     public StockPriceFetcher() {
 
     }
@@ -65,18 +78,39 @@ public class StockPriceFetcher extends AsyncTask<Void, Void, String> {
             JSONObject root = new JSONObject(result);
 
             JSONArray items = root.getJSONObject("query").getJSONObject("results").getJSONArray("quote");
+            JSONObject item;
 
-            String symbol = "";
-            String price = "";
-            String change = "";
 
             ArrayList<StockQuote> quotes = new ArrayList<StockQuote>();
 
             for (int i = 0; i < items.length(); i++) {
-                symbol = items.getJSONObject(i).getString("Symbol");
-                price = items.getJSONObject(i).getString("LastTradePriceOnly");
-                change = items.getJSONObject(i).getString("Change");
-                quotes.add(new StockQuote(symbol, price, change));
+                item = items.getJSONObject(i);
+
+                StockQuote quote = new StockQuote();
+
+                quote.setSymbol(item.getString(SYMBOL));
+                quote.setPrice(item.getDouble(PRICE));
+                quote.setChange(item.getDouble(CHANGE));
+                quote.setOpen(item.getDouble(OPEN));
+                quote.setDayLow(item.getDouble(DAY_LOW));
+                quote.setDayHigh(item.getDouble(DAY_HIGH));
+                quote.setYearLow(item.getDouble(YEAR_LOW));
+                quote.setYearHigh(item.getDouble(YEAR_HIGH));
+                //quote.setEps(item.getDouble(EPS));
+                //quote.setPeRatio(item.getDouble(PE_RATIO));
+
+                // Dividend may be null so perform a check
+                String dividendValue = item.getString(DIVIDEND);
+                if (dividendValue.isEmpty()) {
+                    dividendValue = "0.00";
+                }
+                //quote.setDividend(item.getDouble(dividendValue));
+
+                // Percent change is returned with a percent sign on the end which interferes with the double parsing
+                String percentChange = item.getString(PERCENT_CHANGE);
+                quote.setPercentChange(Double.valueOf(percentChange.substring(0, percentChange.length()-1)));
+
+                quotes.add(quote);
             }
 
             MyBus.getInstance().post(new StockRefreshingEvent(true));

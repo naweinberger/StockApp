@@ -4,4 +4,6 @@
     <string name="action_settings">Settings</string>
 
     <string name="delay_warning">Stock quotes may be subject to a 15 minute delay.</string>
+    <string name="day_range">Day range</string>
+    <string name="year_range">Year range</string>
 </resources>

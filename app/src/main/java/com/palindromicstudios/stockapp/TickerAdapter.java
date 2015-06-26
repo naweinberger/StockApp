@@ -24,7 +24,7 @@ public class TickerAdapter extends RecyclerView.Adapter<TickerAdapter.ViewHolder
     // you provide access to all the views for a data item in a view holder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView symbol, price, change;
+        public TextView symbol, price, change, dayRange, yearRange;
         public CardView container;
         public RelativeLayout expandedInfo;
 
@@ -33,6 +33,8 @@ public class TickerAdapter extends RecyclerView.Adapter<TickerAdapter.ViewHolder
             symbol = (TextView) v.findViewById(R.id.symbol);
             price = (TextView) v.findViewById(R.id.price);
             change = (TextView) v.findViewById(R.id.change);
+            dayRange = (TextView) v.findViewById(R.id.day_range);
+            yearRange = (TextView) v.findViewById(R.id.year_range);
             container = (CardView) v.findViewById(R.id.card_view);
             expandedInfo = (RelativeLayout) v.findViewById(R.id.expanded_info_container);
         }
@@ -60,6 +62,9 @@ public class TickerAdapter extends RecyclerView.Adapter<TickerAdapter.ViewHolder
     public void onBindViewHolder(ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
+
+        StockQuote dItem = mDataset.get(position);
+
         int color;
         double change = mDataset.get(position).getChange();
         if (change >= 0) {
@@ -75,6 +80,9 @@ public class TickerAdapter extends RecyclerView.Adapter<TickerAdapter.ViewHolder
         holder.price.setText(mDataset.get(position).getFormattedPrice());
         holder.change.setText(mDataset.get(position).getFormattedChange());
         holder.change.setTextColor(color);
+
+        holder.dayRange.setText(dItem.getFormattedDayLow() + " - " + dItem.getFormattedDayHigh());
+        holder.yearRange.setText(dItem.getFormattedYearLow() + " - " + dItem.getFormattedYearHigh());
 
         if (dropdownIndicator[position]) {
             holder.expandedInfo.setVisibility(View.VISIBLE);

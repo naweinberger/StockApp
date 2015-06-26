@@ -65,11 +65,38 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:background="#888888"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:padding="10dp">
 
         <TextView
+            android:id="@+id/day_range_label"
+            style="@style/StockDetailDropdown"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:text="@string/day_range"/>
+
+        <TextView
+            android:id="@+id/year_range_label"
+            style="@style/StockDetailDropdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="@string/year_range"/>
+
+        <TextView
+            android:id="@+id/day_range"
+            style="@style/StockDetailDropdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/day_range_label"/>
+
+        <TextView
+            android:id="@+id/year_range"
+            style="@style/StockDetailDropdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/year_range_label"/>
 
     </RelativeLayout>
 
